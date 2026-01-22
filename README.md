@@ -1,4 +1,3 @@
-# fintech-operations-portfolio
 # FinTech Operations Portfolio
 
 This repository contains self-initiated FinTech operations projects focused on payments processing, reconciliation, settlements, and operational controls.
