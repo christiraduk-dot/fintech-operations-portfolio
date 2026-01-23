@@ -1,0 +1,36 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2867
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 SELECT \
+  t."Transaction ID", \
+  t."Amount" AS expected_amount, \
+  s."Settled_Amount" AS actual_amount,\
+  (t."Amount" - s."Settled_Amount") AS discrepancy\
+FROM "transactions" AS t\
+LEFT JOIN "settlements" AS s \
+  ON t."Transaction ID" = s."Transaction_ID"\
+WHERE t."Amount" != s."Settled_Amount" \
+   OR s."Settled_Amount" IS NULL;\
+   \
+   SELECT \
+  t."Transaction ID", \
+  t."Amount" AS transaction_amount, \
+  s."Settled_Amount" AS settled_amount,\
+  CASE\
+    WHEN s."Settled_Amount" IS NULL THEN 'Missing'\
+    WHEN t."Amount" = s."Settled_Amount" THEN 'OK'\
+    ELSE 'Mismatch'\
+  END AS match_status\
+FROM "transactions" AS t\
+LEFT JOIN "settlements" AS s \
+  ON t."Transaction ID" = s."Transaction_ID";\
+  \
+  SELECT\
+  match_status,\
+  COUNT(*) AS total_transactions\
+FROM reconciliation\
+GROUP BY match_status;}
