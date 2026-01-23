@@ -18,18 +18,17 @@ Using a `LEFT JOIN`, I engineered a query to identify transactions that were rec
 
 ```sql
 SELECT 
-    t.transaction_id,
-    t.amount AS recorded_amount,
-    s.settled_amount,
-    COALESCE(s.settled_amount, 0) - t.amount AS discrepancy,
-    CASE 
-        WHEN s.transaction_id IS NULL THEN 'Missing Settlement'
-        WHEN s.settled_amount != t.amount THEN 'Amount Mismatch'
-        ELSE 'Reconciled'
-    END AS status
-FROM Transactions t
-LEFT JOIN Settlements s ON t.transaction_id = s.transaction_id
-WHERE status != 'Reconciled';
+  t."Transaction ID", 
+  t."Amount" AS transaction_amount, 
+  s."Settled_Amount" AS settled_amount,
+  CASE
+    WHEN s."Settled_Amount" IS NULL THEN 'Missing'
+    WHEN t."Amount" = s."Settled_Amount" THEN 'OK'
+    ELSE 'Mismatch'
+  END AS match_status
+FROM "transactions" AS t
+LEFT JOIN "settlements" AS s 
+  ON t."Transaction ID" = s."Transaction_ID";
 
 ##Business Impact
 Efficiency: Automated the cross-referencing of transaction data, replacing manual Excel lookups.
