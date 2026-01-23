@@ -1,32 +1,39 @@
-# Payments Reconciliation & Settlement Analysis
+# FinTech Operations: Automated Payment Reconciliation Engine
 
-## Overview
-This project simulates a FinTech operations reconciliation process by matching payment transactions against settlement records to identify missing and mismatched payouts.
+## 📌 Project Overview
+In financial operations, manual reconciliation between internal transaction logs and bank settlement reports is slow and prone to human error. This project demonstrates a **SQL-based automated engine** designed to identify missing settlements, payout discrepancies, and data integrity issues.
 
-## Objective
-Ensure settlement accuracy by detecting:
-- Missing settlements
-- Amount mismatches
-- Successfully settled transactions
+## 🛠 Tech Stack
+* **Language:** SQL (SQLite)
+* **Tools:** DB Browser for SQLite, Excel
+* **Concepts:** Data Normalization, Type Casting, Joins, and Case Logic.
 
-## Data
-- transactions.csv: Source payment transactions
-- settlements.csv: Settlement records from a payment processor
+## 🏗 Database Architecture
+The project utilizes a relational structure comparing two primary data sources:
+1. `Transactions`: Internal record of sales/payments initiated.
+2. `Settlements`: External bank/processor reports of successfully cleared funds.
 
-## Methodology
-- Imported transactional data into SQLite
-- Used SQL LEFT JOINs to reconcile transactions with settlements
-- Applied CASE logic to classify settlement status (OK / Missing / Mismatch)
-- Created a reconciliation view for reusable analysis
-- Generated summary metrics to assess settlement health
+## 💻 Key SQL Implementation: Reconciliation Logic
+Using a `LEFT JOIN`, I engineered a query to identify transactions that were recorded internally but never reached the bank (missing payouts), and categorized them by status.
 
-## Tools
-- SQL (SQLite)
-- DB Browser for SQLite
-- Spreadsheet preprocessing (Excel / Google Sheets)
+```sql
+SELECT 
+    t.transaction_id,
+    t.amount AS recorded_amount,
+    s.settled_amount,
+    COALESCE(s.settled_amount, 0) - t.amount AS discrepancy,
+    CASE 
+        WHEN s.transaction_id IS NULL THEN 'Missing Settlement'
+        WHEN s.settled_amount != t.amount THEN 'Amount Mismatch'
+        ELSE 'Reconciled'
+    END AS status
+FROM Transactions t
+LEFT JOIN Settlements s ON t.transaction_id = s.transaction_id
+WHERE status != 'Reconciled';
 
-## Key Outcomes
-- Identified settlement exceptions and discrepancies
-- Built a reusable reconciliation view
-- Produced summary counts for operational monitoring
+##Business Impact
+Efficiency: Automated the cross-referencing of transaction data, replacing manual Excel lookups.
 
+Risk Mitigation: Identified high-risk discrepancies (Missing Settlements) that represent potential financial loss.
+
+Scalability: Built a reusable logic that can be applied to large-scale B2B portfolios (e.g., SAP/Oracle exports).
